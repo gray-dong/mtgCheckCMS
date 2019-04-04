@@ -1,0 +1,38 @@
+
+<style>
+    .addGroupDataInfo{
+        padding: 10px;
+    }
+    .addGroupDataInfo .layui-form-label{
+        width: 50px;
+    }
+    .addGroupDataInfo .layui-input{
+        width: calc(100% - 80px);
+    }
+    .groupUser{
+        margin-left: 80px;
+    }
+</style>
+<!--添加群组-->
+<div id="addGroupFun" class="">
+    <form class="addGroupDataInfo layui-form" lay-filter="addGroupTab">
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">群成员</label>
+            <div class="layui-input-block groupUser">
+                <input type="checkbox" name="功能1恶趣味无" lay-skin="primary" title="功能1万千瓦">
+                <input type="checkbox" name="功能2" lay-skin="primary" title="功能2">
+                <input type="checkbox" name="功能3" lay-skin="primary" title="功能3">
+                <input type="checkbox" name="功能4" lay-skin="primary" title="功能4">
+                <input type="checkbox" name="功能5" lay-skin="primary" title="功能5">
+                <input type="checkbox" name="功能6" lay-skin="primary" title="功能6">
+                <input type="checkbox" name="功能7" lay-skin="primary" title="功能7">
+                <input type="checkbox" name="功能8" lay-skin="primary" title="功能8">
+                <input type="checkbox" name="功能9" lay-skin="primary" title="功能9">
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <button class="layui-btn" id="addGroupBtn" lay-submit="" lay-filter="addGroupBtn">立即提交</button>
+        </div>
+    </form>
+</div>

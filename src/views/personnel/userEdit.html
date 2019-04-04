@@ -1,0 +1,38 @@
+<form class="userDataInfo layui-form" lay-filter="example">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <input type="text" name="UserName" id="LAY-user-nickname" lay-verify="nickname" placeholder="用户名" class="layui-input">
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">真实姓名</label>
+        <input type="text" name="RealName" id="LAY-user-userName" lay-verify="userName" placeholder="真实姓名" class="layui-input">
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">联系电话</label>
+        <input type="text" name="Tel" id="LAY-user-cellphone" lay-verify="phone" placeholder="电话" class="layui-input">
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">电子邮箱</label>
+        <input type="text" name="Mailbox" id="LAY-user-email" lay-verify="email" placeholder="邮箱" class="layui-input">
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">所属部门</label>
+        <select name="Department" lay-filter="asd" lay-verify="required" class="">
+            <option value="">请选择部门</option>
+        </select>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户角色</label>
+        <select name="Role" lay-filter="qwe" lay-verify="required" class="">
+            <option value="">请选择角色</option>
+        </select>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">账户有效期</label>
+        <input type="text" class="layui-input" name="indate" id="dateUser" lay-verify="required" placeholder="用户有效期 yyyy-MM-dd - yyyy-MM-dd">
+    </div>
+    <div class="layui-form-item" style="display: none">
+        <button class="layui-btn" id="userEditBtn" lay-submit="" lay-filter="userEditBtn">立即提交</button>
+    </div>
+</form>

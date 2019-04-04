@@ -1,0 +1,218 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="/">主页</a>
+        <a><cite>联系人</cite></a>
+        <a><cite>收件箱</cite></a>
+    </div>
+</div>
+
+<style>
+    .operateBox{
+        height: 40px;
+        line-height: 40px;
+        margin-bottom: 10px;
+    }
+    .emailInfo{
+        /* height: 90px; */
+        margin-bottom: 15px;
+        padding: 10px 20px 10px 90px;
+        font-size: 14px;
+        border: solid 1px #ebebeb;
+        border-radius: 4px;
+        background: url("/src/style/res/role.png") no-repeat 22px 22px #fff;
+        background-size: 36px;
+    }
+    .emailTitle{
+        height: 24px;
+        line-height: 24px;
+    }
+    .titleColor{
+        color: #1890ff;
+    }
+    .eTime{
+        height: 24px;
+        line-height: 24px;
+        color: #afafaf;
+    }
+    .eContent{
+        height: 30px;
+        line-height: 30px;
+        width:650px;    
+        overflow: hidden;    
+        text-overflow:ellipsis;    
+        white-space: nowrap;
+    }
+    .hide{
+        display: none;
+    }
+</style>
+
+
+<div class="layui-fluid ">
+    <div class="operateBox">
+        <button class="layui-btn layui-btn-sm layui-btn-normal" lay-href="contacts/email">
+            <i class="layui-icon">&#xe6b2;</i> 写邮件
+        </button>
+    </div>
+    <div  id="inboxFrame">
+            <!-- <a lay-href="contacts/email"> -->
+    </div>
+</div>
+
+<script id="emailList" type="text/html">
+    {{#  layui.each(d, function(index, item){  }}
+    <div class="emailInfo">
+        <div class="emailTitle">
+            <span>{{item.from}} - </span>
+            <span class="titleColor">{{item.title}}</span>
+        </div>
+        <div class="eTime">
+            {{item.date}}
+        </div>
+        <div class="eContent">
+            {{item.shortContent}}
+        </div>
+        <div class="hide count">
+            {{item.count}}
+        </div>
+        <div>
+            <button class="layui-btn layui-btn-sm layui-btn-normal checkDetail">查看详情</button>
+        </div>
+    </div>
+    {{#  }); }}
+</script>
+
+
+<script>
+    
+    layui.use(["form","laytpl"], function(){
+        var $ = layui.$,
+            laytpl = layui.laytpl,
+            admin = layui.admin
+            ,view = layui.view;
+        
+        $.ajax({
+            url:"http://192.168.1.88:8888/getEmailList.ashx",
+            type:"post",
+            dataType:"json",
+            data:JSON.stringify({
+                "fromUser":"renyx@jzht.com",
+                "toUser":"",
+                "eTitle":"",
+                "eText":"",
+                "eFiles":"",
+                "eAddress":"renyx@jzht.com",
+                "passWord":"renyx",
+                "eCount":0,
+                "eFileName":""
+            }),
+            success:function(_json){
+                if(_json.success !== false){
+                    var getTpl = emailList.innerHTML
+                        ,inboxFrame = document.getElementById('inboxFrame');
+                        laytpl(getTpl).render(_json.data, function(html){
+                        inboxFrame.innerHTML = html;
+                    });
+                    checkDetail();
+                }
+            },error:function(e1,e2,e3){
+
+            }
+        });
+
+        function checkDetail(){
+            var emailNode = $(".emailInfo");
+            emailNode.find(".checkDetail").click(function (e) { 
+                e.preventDefault();
+                // debugger
+                var _count = $(this).parents(".emailInfo").find(".count")[0].innerHTML;
+                // console.log(text);
+
+                $.ajax({
+                    url:"http://192.168.1.88:8888/getEmail.ashx",
+                    type:"post",
+                    dataType:"json",
+                    data:JSON.stringify({
+                        "fromUser":"renyx@jzht.com",
+                        "toUser":"",
+                        "eTitle":"",
+                        "eText":"",
+                        "eFiles":"",
+                        "eAddress":"renyx@jzht.com",
+                        "passWord":"renyx",
+                        "eCount":_count,
+                        "eFileName":""
+                    }),
+                    success:function(_json){
+                        emailLayer(_json);
+                    },error:function(e1,e2,e3){
+
+                    }
+                });
+
+            });
+        }
+
+        function emailLayer(_data){
+            admin.popup({
+                title: '邮件详情'
+                ,area: ['600px', '650px']
+                ,shade: 0.3
+                ,anim: 0
+                ,move: false
+                ,id: 'LAY-emailDetail'
+                ,yes: function(){
+                    
+                }
+                ,zIndex: layer.zIndex //重点1
+                ,success: function(layero){
+                    // debugger
+                    view(this.id).render('contacts/emailDetail').done(function(){
+                        
+                        var getTpl = email.innerHTML
+                            ,emailFrame = document.getElementById('emailFrame');
+                            laytpl(getTpl).render(_data, function(html){
+                                emailFrame.innerHTML = html;
+                        });
+            
+                        downFiles();
+
+                    });
+
+                }
+            });
+        }
+
+        function downFiles(){
+            $(".downLoadBtn").click(function(){
+                var _fileName = $(this).attr('lay-data');
+                // console.log(_fileName);
+                var formData = {
+                    "fromUser": "donglr@jzht.com",
+                    "toUser": "renyx@jzht.com",
+                    "eTitle": "",
+                    "eText": "",
+                    "eFiles":"",
+                    "eAddress":"",
+                    "passWord":"",
+                    "eCount":0,
+                    "eFileName":_fileName
+                };
+                dynamicSubmit("http://192.168.1.88:8888/downLoadFile.ashx", JSON.stringify(formData));
+            })
+        }
+        
+        function dynamicSubmit (url, data) {
+            var form = $('<form hidden="hidden"></form>');
+            form.attr('action', url);
+            form.attr('method', "post");
+            var input = $('<input type="text" name="message"> hidden="hidden"');
+            input.attr("value", data);
+            form.append(input);
+            $('body').append(form);
+            form.submit();
+        };
+        // 
+    })
+
+</script>

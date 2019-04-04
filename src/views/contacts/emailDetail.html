@@ -1,0 +1,82 @@
+
+<style>
+    .emailHeader{
+        padding-left: 10px;
+        border-bottom: 1px solid #eaeaea;
+    }
+    .emailHeader div{
+        line-height: 30px;
+    }
+    .eTitle{
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .eSender span, .eDate span{
+        color: #afafaf;
+    }
+    .emailConten{
+        padding: 15px;
+        font-size: 14px;
+    }
+    .txt_left{
+        padding-left: 15px;
+        height: 30px;
+        line-height: 30px;
+        font-weight: 600;
+        background: #efefef;
+    }
+    .fileName{
+        margin-top: 5px;
+        margin-left: 12px;
+        height: 35px;
+        line-height: 32px;
+        padding-left: 40px;
+        color: #0077ff;
+        background: url(/src/style/res/file.png) no-repeat;
+        
+    }
+    .fileName span:first-of-type{
+        display: inline-block;
+        vertical-align: middle;
+        width:450px;    
+        overflow: hidden;    
+        text-overflow:ellipsis;    
+        white-space: nowrap;
+    }
+    .downLoadBtn {
+        color: #464646;
+    }
+    .downLoadBtn:hover{
+        text-decoration: underline;
+        cursor: pointer;
+    }
+</style>
+    
+
+<div id="emailFrame"></div>
+
+<script id="email" type="text/html">
+    <div class="emailNode">
+        <div class="emailHeader">
+            <div class="eTitle">{{d.data.title}}</div>
+            <div class="eSender">发件人：<span>{{d.data.from}}</span></div>
+            <div class="eDate">时  间：<span>{{d.data.date}}</span></div>
+        </div>
+        <div class="emailConten">
+            {{d.data.shortContent}}
+        </div>
+        {{# if(d.data.eFiles!==null){ }}
+        {{#  layui.each(d.data.eFiles, function(index, item){  }}
+        <div >
+            <div class="txt_left">附件</div>
+            <div class="fileName"><span> {{item.filename}} </span><span class="downLoadBtn" lay-data="{{item.path}}">下载</span></div>
+        </div>
+        {{# }) }}
+        {{# } }}
+    </div>
+</script>
+
+
+<script>
+
+</script>

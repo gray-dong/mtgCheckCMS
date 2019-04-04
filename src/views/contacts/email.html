@@ -1,0 +1,252 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="/">主页</a>
+        <a><cite>联系人</cite></a>
+        <a><cite>写邮件</cite></a>
+    </div>
+</div>
+
+
+<style>
+    #btnfile{
+        position: absolute;
+        width: 90px;
+        height: 30px;
+        top: 0;
+        left: 0;
+        outline: none;
+        background-color: transparent;
+        filter: alpha(opacity=0);
+        -moz-opacity: 0;
+        -khtml-opacity: 0;
+        opacity: 0;
+    }
+    .fileName{
+        margin-top: 5px;
+        height: 35px;
+        line-height: 32px;
+        padding-left: 40px;
+        background: url(/src/style/res/file.png) no-repeat;
+        
+    }
+    .delBtn{
+        color: #0077ff;
+        cursor: pointer;
+    }
+</style>
+
+
+<div class="layui-fluid inboxFrame">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">收件人：</label>
+            <div class="layui-input-block" id="tag_ids2">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">邮件标题：</label>
+            <div class="layui-input-block">
+                <input type="text" required placeholder="请输入邮件标题" name="emailBT"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">附件：</label>
+            <div class="layui-input-block">
+                <!-- <span class="layui-btn layui-btn-sm layui-btn-primary addFile"><i class="layui-icon layui-icon-link"></i>添加附件</span> -->
+                <div class="layui-btn layui-btn-sm layui-btn-primary addFile" >
+                    <input id="btnfile" type="file"/>
+                    <i class="layui-icon layui-icon-link"></i>添加附件
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item fileList" style="display:none;">
+            
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">正文：</label>
+            <div class="layui-input-block">
+                <textarea  placeholder="请输入" name="emailText" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="demo">
+                    <i class="layui-icon">&#xe609;</i> 发送
+                </button>
+                <span class="layui-btn layui-btn-sm" lay-href="contacts/inbox"> 取消 </span>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    var tagData = [{"id":12,"name":"XXX","status":0},{"id":13,"name":"ZZZ"},{"id":14,"name":"SSS"},{"id":15,"name":"AAA"},{"id":16,"name":"WWW"},{"id":17,"name":"DASD"},{"id":18,"name":"GGG"}];
+    layui.use(['layer','form','jquery','selectM'],function(){
+        $ = layui.jquery;	
+        var form = layui.form
+        ,selectM = layui.selectM;
+        //多选标签-所有配置
+        var tagIns2 = selectM({
+            //元素容器【必填】
+            elem: '#tag_ids2'
+            
+            //候选数据【必填】
+            ,data: tagData
+            
+            //默认值
+            ,selected: [] 			
+        
+            //最多选中个数，默认5
+            // ,max : 6
+    
+            //input的name 不设置与选择器相同(去#.)
+            ,name: 'tag2'
+            
+            //值的分隔符
+            ,delimiter: ','
+    
+            //候选项数据的键名
+            ,field: {idName:'id',titleName:'name'}
+        
+        });
+
+        var filesNode = [];
+        var fileList = $(".fileList");
+        $(".addFile").click(function(){
+            var btnfile = document.getElementById('btnfile');
+            btnfile.addEventListener('change', function() {
+                
+                var t_files = this.files;
+                
+                upload(t_files[0], 0,t_files[0].name,btnfile)
+
+            }, false);
+        });
+
+
+        function upload(file, start,filename,test) {
+            debugger
+            var BYTES_PER_CHUNK = 1024 * 1024; // 1MB chunk sizes.
+            var end = start + BYTES_PER_CHUNK;
+            var blob = file;
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: 'http://192.168.1.88:8888/upLoadEmailFile.ashx?from=donglr@jzht.com&to=renyx@jzht.com&filename=' + filename,
+                data: blob.slice(start, end),
+                processData: false,
+                contentType: false,
+                async: true,
+                success: function (data) {
+                    debugger
+                    start = end;
+                    // pg.value = (start / blob.size) * 100;
+                    if (start < blob.size) {
+                        // if ($("#state").attr("state") == "false") {
+                        //     return;
+                        // }
+                        upload(blob, start, data.data);
+                    }
+                    else {
+                        // $("#progress").html("上传完成");
+                        var fileHtml = '<div class="layui-input-block">'+
+                            '           <div class="fileName" lay-data="'+ data.data +'"><span>'+ file.name +'</span><span class="delBtn" lay-data="'+ data.data +'"> 删除 </span></div>'+
+                            '       </div>';
+
+                        fileList.append(fileHtml);
+
+                        fileList.css('display', "");
+
+                        btnfile.outerHTML = btnfile.outerHTML;
+
+                        fileDel();
+
+                        return;
+                    }
+                },
+                error: function (err) {
+                    //layer.close(index);
+                    layer.msg("抱歉发生错误！请检查网络状况", {time:1500,icon:5});
+                    return;
+                }
+            })
+        }
+
+
+        function fileDel(){
+            
+            $(".delBtn").bind("click",function(){
+                console.log(this);
+                var fileName = $(this).attr('lay-data');
+                
+                $.ajax({
+                    url:"http://192.168.1.88:8888/deleteEmailFile.ashx",
+                    type:"post",
+                    dataType:"json",
+                    data:JSON.stringify({
+                        "fromUser":"donglr@jzht.com",
+                        "toUser":"renyx@jzht.com",
+                        "eTitle":"",
+                        "eText":"",
+                        "eFiles":"",
+                        "eAddress":"",
+                        "passWord":"",
+                        "eCount":"",
+                        "eFileName":fileName
+                    }),
+                    success:function(_json){
+                        $(this).parent().parent().remove();                                    
+                    },error:function(e1,e2,e3){
+
+                    }
+                });
+                
+            })
+        }
+
+        form.on('submit(demo)',function(data){
+            
+            // console.log(data.field,fileNode);
+
+            var fileNameObj = $(".fileList .fileName");
+            for(var idx = 0;idx< fileNameObj.length; idx++){
+                var filename = fileNameObj[idx].firstChild.innerText;
+                var path = $(fileNameObj[idx]).attr('lay-data');
+
+                var _file = {}
+                _file.filename = filename;
+                _file.path = path;
+                filesNode.push(_file);
+
+            }
+            debugger
+            $.ajax({
+                url:"http://192.168.1.88:8888/sendEmail.ashx",
+                type:"post",
+                dataType:"json",
+                data:JSON.stringify({
+                    "fromUser":"donglr@jzht.com",
+                    "toUser":"renyx@jzht.com",
+                    "eTitle":data.field.emailBT,
+                    "eText":data.field.emailText,
+                    "eFiles":filesNode,
+                    "eAddress":"donglr@jzht.com",
+                    "passWord":"donglr",
+                    "eCount":0,
+                    "eFileName":""
+                }),
+                success:function(_json){
+                    location.hash = "#/contacts/inbox";                    
+                },error:function(e1,e2,e3){
+
+                }
+            });
+
+
+            return false;
+        })
+    })
+</script>

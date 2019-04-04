@@ -1,0 +1,518 @@
+
+<style>
+    .entryInfo .layui-form-label{
+        float: none;
+        padding: 9px 0;
+        width: 115px;
+        text-align: left;
+    }
+    .entryInfo .layui-form-item .layui-input-inline{
+        width: 235px;
+    }
+    .entryInfo .layui-form-item .layui-inline{
+        margin-right: 40px;
+    }
+    .entryInfo .layui-textarea{
+        width: 500px;
+    }
+    .mapFrame{
+        position: relative;
+        width: 850px;
+    }
+    .toolBtn {
+        position: absolute;
+        z-index: 4;
+        right: 10px;
+        bottom: 10px;
+    }
+
+    #safeCheckApplyImgDataBox {
+        max-height: 400px;
+        overflow: auto;
+        margin-top:10px;
+    }
+    .safeCheckApplyImgBoxFrame {
+        width: 95px;
+        height: 130px;
+        margin: 0 10px 10px 0px;
+        overflow: hidden;
+        background: #f1f1f1;
+        border: 1px solid #e0e0e0;
+        float: left;
+        border-radius: 4px;
+        padding: 10px;
+        position: relative;
+    }
+    .safeCheckApplyImgBox {
+        width: 93px;
+        height: 128px;
+        overflow: hidden;
+        background-color: #ffffff;
+        border: 1px solid #ffffff;
+        border-radius: 4px;
+    }
+    .safeCheckApplyImgBox .safeCheckApplyImgBoxImg {
+        margin: 0 auto;
+        display: block;
+        border: none;
+        cursor: pointer;
+        max-height: 128px;
+        max-width: 93px;
+    }
+    .footer-buttons {
+        position: absolute;
+        height: 20px;
+        bottom: 10px;
+        right: 10px;
+    }
+    .wyps, .cqzp{
+        padding: 0 5px;
+        margin-left: 0 !important;
+        margin-bottom: 7px;
+    }
+    .imageDel, .imageEdit {
+        width:20px;
+        height:20px;
+        border-radius: 3px;
+        border: 1px solid #ecb8b8;
+        background: #fffefe;
+    }
+    .layui-form-img{
+        margin-bottom: 10px;
+    }
+
+    #btnfile{
+        position: absolute;
+        width: 90px;
+        height: 30px;
+        top: 0;
+        left: 0;
+        outline: none;
+        background-color: transparent;
+        filter: alpha(opacity=0);
+        -moz-opacity: 0;
+        -khtml-opacity: 0;
+        opacity: 0;
+    }
+    .fileName{
+        margin-top: 5px;
+        height: 35px;
+        line-height: 32px;
+        padding-left: 40px;
+        background: url(/src/style/res/file.png) no-repeat;
+        
+    }
+    .delBtn{
+        color: #0077ff;
+        cursor: pointer;
+    }
+    .fileList{
+        clear: both;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+</style>
+
+<div id="entryFrame"></div>
+<!-- <div class="layui-fluid"> -->
+<script id="entry" type="text/html">
+    <div class="entryInfo">
+
+        <div class="layui-form" lay-filter="example">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">台账号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="attID" lay-verify="title" autocomplete="off" placeholder="请输入" class="layui-input attrId">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">台账类型</label>
+                    <div class="layui-input-inline">
+                        <select  name="taizhang_type" lay-verify="" lay-filter="">
+                            <option value=""></option>
+                            <option value="1">合法类</option>
+                            <option value="1">研究类</option>
+                            <option value="1">规范类</option>
+                            <option value="1">拆除类</option>
+                            <option value="1">公示类</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">行政区</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="region" lay-verify="required|number" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">街道/乡/镇</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="street" id="date" placeholder="" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">社区/行政村</label>
+                    <div class="layui-input-inline">
+                        <input  name="community" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">项目名称</label>
+                    <div class="layui-input-inline">
+                        <input  name="projectname"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">项目地址</label>
+                    <div class="layui-input-inline">
+                        <input  name="projectaddress"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">所在位置类型</label>
+                    <div class="layui-input-inline">
+                        <input name="postiontype"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">腾地类型:</label>
+                    <div class="layui-input-inline">
+                        <input type="radio" name="tengdi_type" value="0" title="楼顶违建">
+                        <input type="radio" name="tengdi_type" value="1" title="占地违建" checked="">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">是否公益:</label>
+                    <div class="layui-input-inline">
+                        <input type="radio" name="isPublic" value="0" title="公益">
+                        <input type="radio" name="isPublic" value="1" title="非公益" checked="">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">是否违建:</label>
+                    <div class="layui-input-inline">
+                        <input type="radio" name="isIllage" value="0" title="是">
+                        <input type="radio" name="isIllage" value="1" title="否" checked="">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">建设主体</label>
+                    <div class="layui-input-inline">
+                        <input name="build_main"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">建设主体类型</label>
+                    <div class="layui-input-inline">
+                        <select  name="build_main_type"  lay-filter="szbg">
+                            <option value=""></option>
+                            <option value="1">央属单位</option>
+                            <option value="市属单位">市属单位</option>
+                            <option value="区属以下单位">区属以下单位</option>
+                            <option value="驻京部队">驻京部队</option>
+                            <option value="非国有企业">非国有企业</option>
+                            <option value="自然人">自然人</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">建设时间</label>
+                    <div class="layui-input-inline">
+                        <input lay-verify="date" name="build_time" id="build_time" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">违法建设类型</label>
+                    <div class="layui-input-inline">
+                        <select  name="illegal_build_type"  lay-filter="szbg">
+                            <option value=""></option>
+                            <option value="1">无证违法建设</option>
+                            <option value="1">程序性违法建设</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">建设状态</label>
+                    <div class="layui-input-inline">
+                        <select  name="build_state" lay-filter="szbg">
+                            <option value=""></option>
+                            <option value="1">已投入使用</option>
+                            <option value="2">未完工</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">使用性质</label>
+                    <div class="layui-input-inline">
+                        <input  name="use_type" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">建设面积</label>
+                    <div class="layui-input-inline">
+                        <input  name="build_area" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">占地面积</label>
+                    <div class="layui-input-inline">
+                        <input  name="occupy_area"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <!-- <label class="layui-form-label">占地面积</label> -->
+                    <div class="layui-input-inline">
+                            <input type="checkbox" id="checkboxID" name="housetop_occupy_area" value="1" title="屋顶搭建类面积为0" lay-skin="primary" >
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">土地权属</label>
+                    <div class="layui-input-inline">
+                        <select  name="land_owner"  lay-filter="szbg">
+                            <option value=""></option>
+                            <option value="1">国有土地</option>
+                            <option value="2">集体土地</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">规划国土用地性质</label>
+                    <div class="layui-input-inline">
+                        <select  name="plan_country_use_type" lay-filter="szbg">
+                            <option value=""></option>
+                            <option value="1">永久农田基本保护区</option>
+                            <option value="1">农用地</option>
+                            <option value="1">建设用地</option>
+                            <option value="1">未利用地</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">规划用地性质</label>
+                    <div class="layui-input-inline">
+                        <input  name="plan_use_type"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">面积</label>
+                    <div class="layui-input-inline">
+                        <input  name="area"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">层数</label>
+                    <div class="layui-input-inline">
+                        <input  name="layer_num"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">发文证号1</label>
+                    <div class="layui-input-inline">
+                        <input  name="post_card1"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">发文证号2</label>
+                    <div class="layui-input-inline">
+                        <input  name="post_card2"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">发文证号3</label>
+                    <div class="layui-input-inline">
+                        <input  name="post_card3"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">发文证号4</label>
+                    <div class="layui-input-inline">
+                        <input  name="post_card4"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">发文证号5</label>
+                    <div class="layui-input-inline">
+                        <input  name="post_card5"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">现状用途</label>
+                    <div class="layui-input-inline">
+                        <input  name="now_use"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">历史沿革</label>
+                    <div class="layui-input-inline">
+                        <input  name="historic_evo"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-inline">
+                    <textarea placeholder="请输入内容" name="memo" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">销账方式</label>
+                    <div class="layui-input-inline">
+                        <select  name="xzType"  lay-filter="szbg">
+                            <option value=""></option>
+                            <option value="1">已拆除</option>
+                            <option value="2">已完善手续</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">销账时间</label>
+                    <div class="layui-input-inline">
+                        <input  name="xzDate"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">拆后计划用途</label>
+                    <div class="layui-input-inline">
+                        <select  name="after_plan" lay-filter="szbg">
+                            <option value=""></option>
+                            <option value="1">建设用地</option>
+                            <option value="2">一般农用地</option>
+                            <option value="3">绿地</option>
+                            <option value="3">其他</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">疏散人口数</label>
+                    <div class="layui-input-inline">
+                        <input name="fpoput"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">登记单位</label>
+                    <div class="layui-input-inline">
+                        <input  name="login_unit"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">登记人</label>
+                    <div class="layui-input-inline">
+                        <input  name="login_user"  autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">上传材料:</label>
+                <div class="layui-input-inline" style="float:none;" >
+                    <div class="layui-btn layui-btn-sm layui-btn-primary addFile" >
+                        <input id="btnfile" type="file"/>
+                        <i class="layui-icon layui-icon-link"></i>添加附件
+                    </div>
+                </div>
+
+                <div class="layui-input-block fileList" style="display:none;">
+                     <!-- <div class="fileName" lay-data="+ data.data +"><span>+ file.name +</span><span class="delBtn" lay-data="data.data "> 删除 </span></div> -->
+                 </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-img">现场照片（必须包含现场内部照片和现场外部照片）:</label>
+                <div id="safeCheckApplyImgDataBox" class="p10">
+                    {{#  layui.each(d.list, function(index, item){  }}
+                    <div class="safeCheckApplyImgBoxFrame">
+                        <div class="safeCheckApplyImgBox">
+                            <img class="safeCheckApplyImgBoxImg" src="{{item}}" data-original=""/>
+                        </div>
+                        <div class="footer-buttons">
+                            <button type="button" class="imageEdit" title="替换"><i class="iconfont icon-pencil"></i></button>
+                            <button type="button" class="imageDel" title="删除"><i class="iconfont icon-trash"></i></button>
+                        </div>
+                        <input type="file" name="imgUpload" accept="image/jpeg" style="opacity: 0">
+                    </div>
+                    {{#  }); }}
+                    <div class="safeCheckApplyImgBoxFrame addClick">
+                        <!--<div class="safeCheckApplyImgBox addImg">-->
+    
+                        <!--</div>-->
+                        <button class="layui-btn layui-btn-primary wyps" type="button"><i class="layui-icon">&#xe608;</i> 现场内部</button>
+                        <button class="layui-btn layui-btn-primary cqzp" type="button"><i class="layui-icon">&#xe608;</i> 现场外部</button>
+                        <input type="file" name="fileToUpload" id="fileToUpload" accept="image/jpeg" style="opacity: 0">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item" style="margin-top: 20px;">
+                <div class="layui-input-inline">
+                    <button class="layui-btn" id="demo1" lay-submit="" lay-filter="demo1">立即提交</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</script>
+<!-- </div> -->
+
+
+<script>
+    // layui.use(['laydate','form'], function(){
+    //     var $ = layui.$;
+    //     var form = layui.form;
+    //     var laydate = layui.laydate;
+    //     form.render();
+
+    //     var check = document.getElementById("checkboxID").checked;
+    //     var x;
+    //     if(check == true) {
+    //         x = '1';
+    //     } else {
+    //         x = '0';
+    //     }
+
+    //     laydate.render({
+    //         elem: '#build_time' //指定元素
+    //     });
+
+    //     form.on('submit(demo1)', function(obj){
+    //         debugger
+    //         console.log(obj.field);
+    //         $.ajax({
+    //             url: CDdata.Nserver + CDdata.api.tzEntry,
+    //             type: "post",
+    //             dataType: "json",
+    //             data:JSON.stringify($.extend(obj.field, {space_coordinate:"",housetop_occupy_area : x})),
+    //             success: function (response) {
+    //                 debugger
+    //             }
+    //         })
+
+    //         return false;
+    //     })
+    // })
+</script>

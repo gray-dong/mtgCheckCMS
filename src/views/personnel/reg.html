@@ -1,0 +1,203 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>用户管理</cite></a>
+        <a><cite>用户注册</cite></a>
+    </div>
+</div>
+
+
+<style>
+    .userRegisterBoxFrame{
+        margin: 40px auto;
+        width: 350px;
+    }
+    .userRegisterInfo .layui-form-item {
+        position: relative;
+    }
+    .layadmin-user-login-icon {
+        position: absolute;
+        left: 1px;
+        top: 1px;
+        width: 38px;
+        line-height: 36px;
+        text-align: center;
+        color: #d2d2d2;
+        z-index: 1;
+    }
+    .userRegisterInfo .layui-form-item .layui-input {
+        padding-left: 38px;
+    }
+    .userRegisterTitleFrame{
+        font-size: 25px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+</style>
+
+
+<div class="userRegisterFrame layui-fluid">
+    <div class="userRegisterBoxFrame">
+        <div class="userRegisterNavBoxMain">
+            <div class="userRegisterTitleFrame">
+                门头沟区违法建设用地管理平台
+            </div>
+            <div class="userRegisterBoxMain">
+                <form class="userRegisterInfo layui-form">
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-nickname"></label>
+                        <input type="text" name="nickname" id="LAY-user-login-nickname" lay-verify="nickname"
+                            placeholder="用户名" class="layui-input">
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-userName"></label>
+                        <input type="text" name="userName" id="LAY-user-login-userName" lay-verify="userName"
+                            placeholder="真实姓名" class="layui-input">
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-cellphone" for="LAY-user-login-cellphone"></label>
+                        <input type="text" name="cellphone" id="LAY-user-login-cellphone" lay-verify="phone"
+                            placeholder="电话" class="layui-input">
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-template" for="LAY-user-login-email"></label>
+                        <input type="text" name="email" id="LAY-user-login-email" lay-verify="email" placeholder="邮箱"
+                            class="layui-input">
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
+                        <input type="password" name="password" id="LAY-user-login-password" lay-verify="required"
+                            placeholder="密码" class="layui-input">
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-repass"></label>
+                        <input type="password" name="repass" id="LAY-user-login-repass" lay-verify="required"
+                            placeholder="确认密码" class="layui-input">
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-flag" for="LAY-user-login-repass"></label>
+                        <select name="brance" lay-filter="" lay-verify="required" class="">
+                            <option value="">请选择部门</option>
+                        </select>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-group" for="LAY-user-login-repass"></label>
+                        <select name="role" lay-filter="" lay-verify="required" class="">
+                            <option value="">请选择角色</option>
+                        </select>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-date" for="test6"></label>
+                        <input type="text" class="layui-input" name="indate" id="test6" lay-verify="required"
+                            placeholder="用户有效期 yyyy-MM-dd - yyyy-MM-dd">
+                    </div>
+                    <div class="layui-form-item">
+                        <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="login-submit">注 册</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(["form", "laydate"], function () {
+        Agreement.getWebsocket(function () {}, function (_userdata) {
+            userData = _userdata;
+            //this指向websocket；_userdata指向用户信息{username,password,usertoken}
+            websocket = this; //接下来的websocket就用它
+
+            var $ = layui.$;
+            var form = layui.form;
+            var laydate = layui.laydate;
+            console.log(md5);
+            var node = $(".userRegisterFrame");
+            websocket.send("AllDepartment", {}, function (response) {
+                if (response.status == "success") {
+                    var $brance = node.find('select[name=brance]');
+                    $brance.html('<option value="">请选择部门</option>');
+                    for (var i = 0, len = response.data.length; i < len; i++) {
+                        $brance.append('<option value="' + response.data[i].Depname + '">' +
+                            response.data[i].Depname + '</option>')
+                    }
+                    websocket.send("AllRole", {}, function (response) {
+                        if (response.status == "success") {
+                            var $role = node.find('select[name=role]');
+                            $role.html('<option value="">请选择角色</option>');
+                            for (var x = 0, len = response.data.length; x < len; x++) {
+                                $role.append('<option value="' + response.data[x].RoleCNName +
+                                    '">' + response.data[x].RoleCNName +
+                                    '</option>');
+                            }
+                            form.render('select');
+                            userRegisterShow();
+                        }
+                    });
+                }
+            });
+
+            function userRegisterShow() {
+                // form.render('select');
+
+                var node = $(".userRegisterFrame");
+                //自定义验证规则
+                form.verify({
+                    nickname: [/^[a-zA-Z0-9_]+$/, '登录名只能由字母、数字或下划线组成'],
+                    userName: [/^[\u4e00-\u9fa5]+$/, '姓名格式为汉字且不少于两字'],
+                    password: [/^\w{8,}/, '密码必须最少八位']
+
+                });
+
+                layui.use('laydate', function () {
+                    var laydate = layui.laydate;
+                    laydate.render({
+                        elem: '#test6',
+                        range: true
+                    });
+                });
+
+                //提交
+                form.on('submit(login-submit)', function (obj) {
+                    var field = obj.field;
+
+                    var md5ps = md5(field.password);
+                    debugger
+                    //确认密码
+                    if (field.password !== field.repass) {
+                        return layer.msg('两次密码输入不一致');
+                    }
+
+                    var dateFrom = field.indate.slice(0, 10);
+                    var dateTo = field.indate.substring(field.indate.length - 10);
+                    var userData = {
+                        UserName: field.nickname,
+                        RealName: field.userName,
+                        PassWord: md5ps,
+                        Department: field.brance,
+                        Role: field.role,
+                        Mailbox: field.email,
+                        Tel: field.cellphone,
+                        DateFrom: dateFrom,
+                        DateTo: dateTo
+                    };
+
+                    websocket.send("AddUser", {
+                        User_data: userData
+                    }, function (response) {
+                        if (response.status == "success") {
+                            $(".userRegisterInfo")[0].reset();
+                            layer.msg("注册成功！", {
+                                time: 1500,
+                                icon: 1
+                            });
+                        }
+                    });
+
+                    return false;
+                });
+            }
+
+        });
+
+    })
+</script>

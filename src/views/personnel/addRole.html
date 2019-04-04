@@ -1,0 +1,23 @@
+<!--添加角色-->
+<div id="addRoleFun" class="">
+    <form class="addRoleDataInfo layui-form" lay-filter="addRoleTab">
+        <div class="layui-form-item">
+            <label class="layui-form-label">角色中文名</label>
+            <input type="text" name="RoleCNName" lay-verify="RoleCNName" required placeholder="角色中文名字" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">角色英文名</label>
+            <input type="text" name="RoleEnName" lay-verify="RoleEnName" required placeholder="角色英文名字" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">功能配置</label>
+            <div class="layui-input-block">
+            <input type="checkbox" name="台账录入" lay-skin="primary" title="台账录入">
+            <input type="checkbox" name="管理" lay-skin="primary" title="管理">
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <button class="layui-btn" id="addRoleBtn" lay-submit="" lay-filter="addRoleBtn">立即提交</button>
+        </div>
+    </form>
+</div>

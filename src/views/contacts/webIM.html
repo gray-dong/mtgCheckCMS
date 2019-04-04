@@ -1,0 +1,199 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="/">主页</a>
+        <a><cite>联系人</cite></a>
+        <a><cite>聊天室</cite></a>
+    </div>
+</div>
+
+
+<div class="layui-fluid ">
+
+</div>
+
+<script>
+
+layui.use('layim', function(layim){
+    var $ = layui.$;
+    
+    var _data = {
+        fromUser:"dongliangrui",
+        message:"",
+        messageDateTime:getNowDate(),
+        toUser:"dongliangrui"
+    };
+    
+    // 初始化一个 WebSocket 对象
+    var websocket = new WebSocket("ws:192.168.1.130:9001");
+
+    // 建立 web socket 连接成功触发事件
+    websocket.onopen = function () {
+        // 使用 send() 方法发送数据
+        websocket.send(JSON.stringify({data:_data,state:0}));
+        alert("数据发送中...");
+    };
+
+    // 接收服务端数据时触发事件
+    websocket.onmessage = function (evt) {
+        var received_msg = JSON.parse( evt.data ) ;
+        // alert("数据已接收...");
+        debugger
+        // _received_msg = JSON.parse(received_msg);
+        if(received_msg.state == 1){
+            layim.getMessage({
+                username: "董良瑞" //消息来源用户名
+                ,avatar: "http://tp1.sinaimg.cn/5619439268/180/40030060651/1" //消息来源用户头像
+                ,id: "100001" //消息的来源ID（如果是私聊，则是用户id，如果是群聊，则是群组id）
+                ,type: "friend" //聊天窗口来源类型，从发送消息传递的to里面获取
+                ,content: received_msg.data.message //消息内容
+                ,cid: "" //消息id，可不传。除非你要对消息进行一些操作（如撤回）
+                ,mine: false //是否我发送的消息，如果为true，则会显示在右方
+                ,fromid: "100001" //消息的发送者id（比如群组中的某个消息发送者），可用于自动解决浏览器多窗口时的一些问题
+                ,timestamp: received_msg.data.messageDateTime //服务端时间戳毫秒数。注意：如果你返回的是标准的 unix 时间戳，记得要 *1000
+            });
+        }else if(received_msg.state == 3){
+            layim.getMessage({
+                username: received_msg.data.fromUser //消息来源用户名
+                ,avatar: "http://tp1.sinaimg.cn/5619439268/180/40030060651/1" //消息来源用户头像
+                ,id: received_msg.data.toUser //消息的来源ID（如果是私聊，则是用户id，如果是群聊，则是群组id）
+                ,type: "group" //聊天窗口来源类型，从发送消息传递的to里面获取
+                ,content: received_msg.data.message //消息内容
+                ,cid: "" //消息id，可不传。除非你要对消息进行一些操作（如撤回）
+                ,mine: false //是否我发送的消息，如果为true，则会显示在右方
+                ,fromid: received_msg.data.fromUser //消息的发送者id（比如群组中的某个消息发送者），可用于自动解决浏览器多窗口时的一些问题
+                ,timestamp: received_msg.data.messageDateTime //服务端时间戳毫秒数。注意：如果你返回的是标准的 unix 时间戳，记得要 *1000
+            });
+        }
+        
+        // layimAction(_received_msg);
+    };
+
+    // 断开 web socket 连接成功触发事件
+    // websocket.onclose = function () {
+    //     alert("连接已关闭...");
+    // };
+
+    // function layimAction(_received_msg){
+
+        //基础配置
+        layim.config({
+            
+            // right:(window.innerWidth)- 240 -262 + "px",
+            init: {
+                mine: {
+                    username: "董良瑞" //我的昵称
+                    ,id: "100000" //我的ID
+                    // ,sign: "在深邃的编码世界，做一枚轻盈的纸飞机" //我的签名
+                    ,avatar: "http://tp1.sinaimg.cn/5619439268/180/40030060651/1" //我的头像   /src/style/res/role.png
+                }
+                ,friend: [{
+                    list:[{
+                        username: "董良瑞" //好友昵称
+                        ,id: "100001" //好友ID
+                        ,status: "online" //若值为offline代表离线，online或者不填为在线
+                        ,avatar: "http://tp1.sinaimg.cn/5619439268/180/40030060651/1" 
+                    },{
+                        username: "董良瑞2" //好友昵称
+                        ,id: "100002" //好友ID
+                        ,status: "online" //若值为offline代表离线，online或者不填为在线
+                        ,avatar: "http://tp1.sinaimg.cn/5619439268/180/40030060651/1" 
+                    }]
+                }]
+                ,group: [{
+                    "groupname": "jzht" //群组名
+                    ,"id": "jzht" //群组ID
+                    ,"avatar": "/src/style/res/group.png" //群组头像
+                }]
+            } 
+        
+            ,title:"聊天室"
+            ,isgroup:true
+            ,copyright:true
+            ,chatLog: layui.cache.dir + 'css/modules/layim/html/chatlog.html' 
+            
+        });
+    // }
+
+    //将主面板的关闭按钮去掉
+    // $(".layui-layer-setwin").html("");
+    //去掉主面板更换背景和关于
+    $(".layim-tool-skin").remove();
+    $(".layim-tool-about").remove();
+    //取消拖拽
+    $(".layui-layer-title").unbind("mousedown");
+    $(".layui-layer-title").css("cursor","default");
+    //设置宽度
+    $(".layer-anim-02").width($(".communicate").width());
+    //设置绝对定位
+    $(".layer-anim-02").css("position","absolute").css("top",(window.innerHeight)/2 -300 +"px").css("left",240+"px");
+    //将搜索去掉
+    $(".layui-layim-tool").remove();
+    //将通讯主面板的阴影去掉
+    // $(".layer-anim-02").css("box-shadow","none");
+    //将多出的new去掉
+    $(".layim-msg-status").html("");
+    //让它不出现最小化
+    $("#layui-layer2").remove();
+    $("#layui-layer1").show();
+    
+    layim.on('sendMessage', function(res){
+        var mine = res.mine; //包含我发送的消息及我的信息
+        var to = res.to;//对方的信息
+        debugger
+        if(to.type == "friend"){
+            websocket.send(JSON.stringify({
+                data: {
+                    fromUser:"dongliangrui",
+                    message:mine.content,
+                    messageDateTime: getNowDate(),
+                    toUser:"dongliangrui"
+                }
+                ,state:1
+            }));
+        } else if (to.type == "group"){
+            websocket.send(JSON.stringify({
+                data: {
+                    fromUser:"dongliangrui",
+                    message:mine.content,
+                    messageDateTime: getNowDate(),
+                    toUser:to.id
+                }
+                ,state:3
+            }));
+        }
+        
+    })
+
+});
+
+function getNowDate() {
+    var date = new Date();
+    var sign1 = "-";
+    var sign2 = ":";
+    var year = date.getFullYear() // 年
+    var month = date.getMonth() + 1; // 月
+    var day  = date.getDate(); // 日
+    var hour = date.getHours(); // 时
+    var minutes = date.getMinutes(); // 分
+    var seconds = date.getSeconds() //秒
+    // 给一位数数据前面加 “0”
+    if (month >= 1 && month <= 9) {
+    month = "0" + month;
+    }
+    if (day >= 0 && day <= 9) {
+    day = "0" + day;
+    }
+    if (hour >= 0 && hour <= 9) {
+    hour = "0" + hour;
+    }
+    if (minutes >= 0 && minutes <= 9) {
+    minutes = "0" + minutes;
+    }
+    if (seconds >= 0 && seconds <= 9) {
+    seconds = "0" + seconds;
+    }
+    var currentdate = year + sign1 + month + sign1 + day + " " + hour + sign2 + minutes + sign2 + seconds;
+    return currentdate;
+}
+
+</script>

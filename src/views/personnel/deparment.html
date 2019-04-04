@@ -1,0 +1,373 @@
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>用户管理</cite></a>
+        <a><cite>部门管理</cite></a>
+    </div>
+</div>
+
+<style>
+    .operateBox {
+        height: 40px;
+        line-height: 40px;
+    }
+    .treeTable {
+        border: none;
+    }
+    .treeTable .layui-table-box {
+        border: 1px solid #e5e5e5;
+    }
+    .userManageInfo{
+        background: #ffffff;
+    }
+    .userDataInfo .layui-form-label {
+        width: 70px;
+    }
+    .userDataInfo .layui-form-item .layui-input {
+        width: calc(100% - 100px);
+        margin-left: 100px;
+    }
+</style>
+
+
+<div class="userManageFrame layui-fluid">
+    <!-- <div class="userManageBoxMain" id="userManageBoxMain" style="height: 550px;"> -->
+        <div class="operateBox">
+            <button class="layui-btn layui-btn-normal addDepBtn" data-type="addDepartment">
+                <i class="layui-icon">&#xe654;</i> 添加部门
+            </button>
+        </div>
+        <div class="userManageInfo">
+            <table class="layui-hide" id="userManageTable"  lay-filter="userManageTable">
+
+            </table>
+        </div>
+    <!-- </div> -->
+</div>
+
+
+<script>
+
+    var websocket ,$ ;
+    var userManageFrame;
+    function initWebPage(){
+        Agreement.getWebsocket(function(){
+
+        },function(_userdata){
+            userData=_userdata;
+            //this指向websocket；_userdata指向用户信息{username,password,usertoken}
+            websocket=this;//接下来的websocket就用它
+            userManageFrame = new UserManageFrame();
+        });
+    };
+
+    layui.use(["form","laydate"], function(){
+        $ = layui.$;
+        form = layui.form,
+        laydate = layui.laydate;
+        admin = layui.admin;
+        view = layui.view;
+        $(initWebPage);
+
+    })
+    
+    function UserManageFrame() {
+        var content=this;
+        var node=this.node=$(".userManageFrame");
+        var active;
+        
+        this.getAllUserList = function () {
+            // var loadingBox=LoadingView("userManageBoxFrame");
+            websocket.send("AllUser",{},function (response) {
+                if(response.status=="success"){
+                    // loadingBox.remove();
+                    var _data = response.data;
+                    content.setReviewTable(_data);
+                }
+            });
+            // $.ajax({
+            //     url:"json/user/menus.json",
+            //     type:"get",
+            //     dataType:"json",
+            //     data:JSON.stringify({}),
+            //     success:function(_json){
+            //         // loadingBox.remove();
+            //         var _data = _json.data;
+            
+            //         content.setReviewTable(_data);
+            
+            //     },error:function(e1,e2,e3){
+            
+            //     }
+            // });
+        };
+
+        //设置表格
+        this.setReviewTable = function (_data) {
+
+            layui.use(['table', 'treetable'], function() {
+                var userManageInfoTable = layui.table;
+                var treetable = layui.treetable;
+                treetable.render({
+                    elem: '#userManageTable'
+                    , id: "userManageInfoTable"
+                    , treeColIndex: 0
+                    , treeSpid: 1
+                    , treeIdName: 'UIDs'
+                    , treePidName: 'ParentID'
+                    , data: _data
+                    // , height : 540
+                    , cols: [[
+                        {field: 'RealName', minWidth: 200, title: '用户姓名',templet: function(d){
+                            if(d.isDep == 0){
+                                return "&nbsp;";
+                            }
+                        }},
+                        {field: 'Role', title: '用户角色'},
+                        {field: 'menuUrl', title: '菜单url'},
+                        {field: 'orderNumber', width: 80, align: 'center', title: '排序号'},
+                        {
+                            field: 'isDep', width: 120, align: 'center', templet: function (d) {
+                                if (d.isDep == 0) {
+                                    return  '<a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="editUser">编辑</a>\n' +
+                                            '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delUser">删除</a>';
+                                }
+                                if (d.isDep == -1) {
+                                    return '<span class="layui-badge layui-bg-blue">目录</span>';
+                                } else {
+                                    return  '<a class="layui-btn layui-btn-xs" lay-event="editDep">修改</a>\n' +
+                                            '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delDep">删除</a>';
+                                }
+                            }, title: '操作'
+                        },
+                        // {templet: '#auth-state', width: 120, align: 'center', title: '操作'}
+                    ]]
+                });
+
+                userManageInfoTable.on('tool(userManageTable)', function (obj) {
+                    var data = obj.data;
+                    if (obj.event === 'editUser') {
+                        // $.ajax({
+                        //     url: "json/userData.json",
+                        //     type: "get",
+                        //     dataType: "json",
+                        //     data: JSON.stringify({}),
+                        //     success: function (_json) {
+                        //         data = _json.data;
+                        //         userManageEdit(data);
+                        //     }, error: function (e1, e2, e3) {
+
+                        //     }
+                        // });
+                        for (var index = 0; index < _data.length; index++) {
+                            if (data.RealName === _data[index].RealName) {
+                                userManageEdit(_data[index]);
+                            }
+                            
+                        }
+                    } else if (obj.event === 'delUser') {
+                        layer.confirm('真的删除用户么', function (index) {
+                            websocket.send("DelUser",{UserName:obj.data.UserName},function(response){
+                                if(response.status == "success"){
+                                    obj.del();
+                                    layer.close(index);
+                                    layer.msg("删除成功!",{time:1500,icon:1});
+                                } else{
+                                    layer.msg(response.data,{time:1500,icon:2})
+                                }
+                            })
+                        });
+                    } else if (obj.event === "editDep") {
+                        layer.prompt({
+                            title:"修改部门名称"
+                        },function(value, index, elem){
+                            var depName = obj.data.RealName +","+value;
+                            // console.log(obj.data.RealName);
+                            websocket.send("ModifyDepartment",{DepName:depName},function (response) {
+                                if(response.status=="success"){
+                                    layer.close(index);
+                                    layer.msg("修改成功!",{time:1500,icon:1})
+                                    content.getAllUserList();
+                                }
+                            });
+                        });
+                    } else if (obj.event === 'delDep') {
+                        // layer.alert('编辑行：<br>' + JSON.stringify(data))
+                        layer.confirm('真的删除部门么', function (index) {
+
+                            websocket.send("DelDepartment",{DepName:obj.data.RealName},function(response){
+                                if(response.status == "success"){
+                                    obj.del();
+                                    layer.close(index);
+                                    layer.msg("删除成功!",{time:1500,icon:1});
+                                } else{
+                                    layer.msg(response.data,{time:1500,icon:2})
+                                }
+                            })
+                        });
+                    }
+                });
+                active = {
+                    //添加部门
+                    addDepartment: function () { //获取选中数据
+                        layer.prompt({
+                            title:"添加部门"
+                        },function(value, index, elem){
+                            websocket.send("AddDepartment",{DepName:value},function (response) {
+                                debugger
+                                if(response.status=="success"){
+                                    content.getAllUserList();
+                                    layer.close(index);
+                                }
+                            });
+                        });
+
+                    }
+                };
+            })
+        };
+
+        //重置密码
+        function userManageReset(_data) {
+            var resetInfo = {
+                UserName:_data.UserName,
+                PassWord:"000000",
+                Email:""
+            };
+
+            $.ajax({
+                url:CDdata.server + CDdata.api.defaultUserPassWord,
+                type:"post",
+                dataType:"json",
+                data:JSON.stringify(resetInfo),
+                success:function(_json){
+
+                    layer.alert('密码已重置为000000')
+
+                },error:function(e1,e2,e3){
+
+                }
+            });
+        }
+
+        //修改
+        function userManageEdit(_data) {
+
+            admin.popup({
+                title: "用户详情"
+                ,area: ['350px', '500px']
+                ,shade: 0.3
+                ,anim: 0
+                ,move: false
+                ,resize:false
+                ,id: 'LAY-user-edit'
+                ,btnAlign: 'c'
+                ,btn: ['确定修改','重置密码','关闭']
+                ,skin: 'layui-layer-lan'
+                ,yes: function(){
+                    document.getElementById("userEditBtn").click();
+
+                }
+                ,btn2:function () {
+                    return false
+                }
+                ,zIndex: layer.zIndex //重点1
+                ,success: function(layero){
+                    view(this.id).render('personnel/userEdit').done(function(){
+                    // layer.setTop = function(layero){
+                    //     var setZindex = function(){
+                    //         layer.zIndex++;
+                    //         layero.css('z-index', layer.zIndex + 1);
+                    //     };
+                    //     layer.zIndex = parseInt(layero[0].style.zIndex);
+                    //     layero.on('mousedown', setZindex);
+                    //     return layer.zIndex;
+                    // }; //重点2
+
+                        websocket.send("AllDepartment",{},function (response) {
+                            if(response.status=="success"){
+                                var $brance = $('.userDataInfo').find('select[name=Department]');
+                                $brance.html('<option value="">请选择部门</option>');
+                                for(var i=0,len=response.data.length;i<len;i++){
+                                    $brance.append('<option value="'+response.data[i].Depname+'">'+response.data[i].Depname+'</option>')
+                                }
+                                websocket.send("AllRole",{},function (response) {
+                                    if(response.status=="success"){
+                                        var $role = $('.userDataInfo').find('select[name=Role]');
+                                        $role.html('<option value="">请选择角色</option>');
+                                        for(var x=0,len=response.data.length;x<len;x++){
+                                            $role.append('<option value="'+response.data[x].RoleCNName+'">'+response.data[x].RoleCNName+'</option>');
+                                        }
+                                        form.render('select');
+                                        formVal();
+                                    }
+                                });
+                            }
+                        })
+
+                        //表单初始赋值
+                        function formVal() {
+                            var dateFrom = _data.DateFrom.slice(0,10) +" - " +_data.DateTo.slice(0,10);
+                            form.val('example', {
+                                "UserName": _data.UserName // "name": "value"
+                                ,"RealName":_data.RealName
+                                ,"Tel":_data.Tel
+                                ,"Mailbox":_data.Mailbox
+                                ,"Department":_data.Department
+                                ,"Role":_data.Role
+                            });
+                            laydate.render({
+                                elem: '#dateUser'
+                                ,range: true
+                                ,value: dateFrom
+                            });
+
+                            form.on('submit(userEditBtn)', function(obj){
+                                var field = obj.field;
+                
+                                var dateFrom = field.indate.slice(0,10);
+                                var dateTo = field.indate.substring(field.indate.length-10);
+                                var userData = {
+                                    UserName: field.UserName // "name": "value"
+                                    ,RealName:field.RealName
+                                    ,Tel:field.Tel
+                                    ,Mailbox:field.Mailbox
+                                    ,Department:field.Department
+                                    ,Role:field.Role
+                                    ,DateFrom:dateFrom
+                                    ,DateTo:dateTo
+                                };
+                        
+                                websocket.send("ModifyUser",{User_data:$.extend(_data,userData)},function (response) {
+                                    debugger
+                                    if(response.status=="success"){
+                                        layer.close(layer.index);
+                                        content.getAllUserList();
+                                        layer.msg("修改成功！",{time:1500,icon:1});
+                                    } else {
+                                        layer.msg("修改失败",{time:1500,icon:2});
+                                    }
+                                });
+                        
+                                return false;
+                            });
+
+                        }
+                    })
+                    
+                }
+            });
+        }
+
+        function initEvent() {
+            content.getAllUserList();
+            node.find(".addDepBtn").bind("click",function () {
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+        }
+
+        initEvent();
+    }
+</script>

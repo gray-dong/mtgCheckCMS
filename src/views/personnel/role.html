@@ -1,0 +1,319 @@
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>用户管理</cite></a>
+        <a><cite>角色管理</cite></a>
+    </div>
+</div>
+
+<style>
+    .hide{
+        display: none;
+    }
+    .operateBox {
+        height: 40px;
+        line-height: 40px;
+    }
+    .roleList {
+        margin-top: 10px;
+    }
+    .roleBox{
+        box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+    }
+    .roleName {
+        height: 90px;
+        line-height: 90px;
+        padding-left: 90px; 
+        font-weight: 600;
+        border: 1px solid #eaeaea;
+        border-bottom: none;
+        background: url("/src/style/res/role.png") no-repeat 22px 22px #fff ;
+        background-size: 48px;
+    }
+    .roleAllocation.layui-col-md6 {
+        height: 40px;
+        line-height: 40px;
+        background: #fff;
+        border: 1px solid #eaeaea;
+        text-align: center;
+        cursor: pointer;
+    }
+    .roleDel.layui-col-md6 {
+        height: 40px;
+        line-height: 40px;
+        background: #fff;
+        text-align: center;
+        border: 1px solid #eaeaea;
+        border-left: none;
+        cursor: pointer;
+    }
+    /* .addRoleDataInfo,#roleFun{
+        padding: 10px;
+    } */
+    .addRoleDataInfo .layui-input {
+        width: calc(100% - 110px);
+    }
+</style>
+
+
+<div class="roleManageFrame layui-fluid">
+    <div class="roleManageBoxFrame" >
+        <div class="operateBox">
+            <button class="layui-btn layui-btn-normal addRoleBtn" data-type="addRole">
+                <i class="layui-icon">&#xe654;</i> 添加角色
+            </button>
+        </div>
+        <div class="roleList layui-row layui-col-space10">
+            <!-- <div class="roleItem layui-col-md3">
+                <div class="roleName">管理人员</div>
+                <div class="layui-row">
+                    <div class="roleAllocation layui-col-md6">设置权限</div>
+                    <div class="roleDel layui-col-md6">删除</div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    var roleManageFrame;
+    function initWebPage(){
+        Agreement.getWebsocket(function(){
+
+        },function(_userdata){
+            userData=_userdata;
+            //this指向websocket；_userdata指向用户信息{username,password,usertoken}
+            websocket=this;//接下来的websocket就用它
+            roleManageFrame = new RoleManageFrame();
+        });
+    };
+
+    //角色管理
+    layui.use(["form"], function(){
+        $ = layui.$,
+        form = layui.form,
+        admin = layui.admin
+        ,view = layui.view;
+        // $("li[data-name='lxr']")[0].style.display="none";
+        $(initWebPage);
+    })
+    
+    function RoleManageFrame() {
+        var content=this;
+        var node=this.node=$(".roleManageFrame");
+
+        var allRoles={};
+
+        var active;
+
+        this.getAllRole = function(){
+            websocket.send("AllRole",{},function (response) {
+                if(response.status=="success"){
+                    content.setAllRole(response.data);
+                }
+            });
+            // $.ajax({
+            //     url:"json/user/role.json",
+            //     type:"get",
+            //     dataType:"json",
+            //     data:{},
+            //     success:function(_json){
+            //         content.setAllRole(_json.data);
+            //     },error:function(e1,e2,e3){
+            
+            //     }
+            // });
+        }
+
+        this.setAllRole = function (_data) {
+
+            // $.each(_data,function (index,value) {
+            //     allRoles[value.roleName] = value;
+            // })
+            var item='';
+            var len = _data.length;
+            for(var i=0; i<len;i++){
+                var role = _data[i].RoleCNName;
+                allRoles[role] = _data[i];
+
+                item += '<div class="roleItem layui-col-md3">\n' +
+                    '       <div class="roleBox">\n' +
+                    '           <div class="roleName">'+_data[i].RoleCNName+'</div>\n' +
+                    '           <div class="layui-row">\n' +
+                    '               <div class="roleAllocation layui-col-md6">设置权限</div>\n' +
+                    '               <div class="roleDel layui-col-md6">删除</div>\n' +
+                    '           </div>\n' +
+                    '       </div>\n' +
+                    '    </div>';
+            }
+            $('.roleList').html(item);
+            roleSet();
+            roleDel();
+        };
+
+        active = {
+            //添加角色
+            addRole: function () { //获取选中数据
+                admin.popup({
+                    title: '添加角色'
+                    ,area: ['350px', '390px']
+                    ,shade: 0.3
+                    ,anim: 0
+                    ,move: false
+                    ,id: 'LAY-role-add'
+                    ,btn: ['添加','关闭']
+                    ,skin: 'layui-layer-lan'
+                    ,yes: function(){
+                        document.getElementById("addRoleBtn").click();
+                    }
+                    ,zIndex: layer.zIndex //重点1
+                    ,success: function(layero){
+                        view(this.id).render('personnel/addRole').done(function(){
+                            form.render(null, 'addRoleTab');
+                            
+                            form.verify({
+                                RoleCNName: [/[\u4e00-\u9fa5]/gm, '只能由中文汉字组成']
+                                ,RoleEnName:[/^[a-z]+$/i,'只能由英文字母组成']
+                            
+                            });
+                            form.render(null, 'addRoleTab');
+                            
+                            form.on("submit(addRoleBtn)",function (data) {
+                            
+                                var roleMod = [];
+                                $.each(data.field,function (key,val) {
+                                    if(key != "RoleCNName" && key != "RoleEnName")
+                                    roleMod.push(key);
+                                });
+                                console.log(roleMod);
+                            
+                                var _roleMod = roleMod.join(",");
+                                var _roleData = {
+                                    RoleCNName:data.field.RoleCNName,
+                                    RoleEnName:data.field.RoleEnName,
+                                    FunModule:_roleMod
+                                };
+                            
+                                websocket.send("AddRole",{Role_data:_roleData},function (response) {
+                                    if(response.status=="success"){
+                                        content.getAllRole();
+                                        layer.close(layer.index);
+                                        layer.msg("添加成功!",{time:1500,icon:1})
+                                    }
+                                });
+                                return false;
+                            })
+                
+                        });
+
+
+                    }
+                });
+
+            }
+        };
+
+        //修改角色
+        function roleSet() {
+            $('.roleAllocation').bind("click",function () {
+
+                var roleName = $(this).parents('.roleItem').find('.roleName').text();
+                var roleModule = allRoles[roleName];
+                admin.popup({
+                    type: 1 //此处以iframe举例
+                    ,title: "角色功能"
+                    ,area: ['350px', '300px']
+                    ,shade: 0.3
+                    ,anim: 0
+                    ,move: false
+                    ,isOutAnim:false
+                    ,btnAlign: 'c'
+                    // ,content: $('#roleFun') //''+JSON.stringify(data)+''
+                    ,btn: ['确定修改','关闭']
+                    ,skin: 'layui-layer-lan'
+                    ,yes: function(){
+                        document.getElementById("roleSub").click();
+                    }
+                    ,zIndex: layer.zIndex //重点1
+                    ,success: function(layero){
+                        debugger
+                        view(this.id).render('personnel/roleSet').done(function(){
+                            form.render(null, 'roleSet');
+                            // form.render();
+                            layer.setTop = function(layero){
+                                var setZindex = function(){
+                                    layer.zIndex++;
+                                    layero.css('z-index', layer.zIndex + 1);
+                                };
+                                layer.zIndex = parseInt(layero[0].style.zIndex);
+                                layero.on('mousedown', setZindex);
+                                return layer.zIndex;
+                            }; //重点2
+
+                            //表单初始赋值
+                            var roleMod = {"台账录入":'',"管理":''};
+                            var moduleArr = (roleModule.FunModule).split(",");
+                            // var moduleArr = roleModule.module;
+                            $.each(moduleArr,function (index,value) {
+                                roleMod[value] = true
+                            });
+                            form.val('roleSet', {
+                                "台账录入": roleMod.台账录入, // "name": "value"
+                                "管理": roleMod.管理
+                            });
+
+                            form.on("submit(roleSub)",function (data) {
+                                // console.log(roleModule.module);
+                                var arr = [];
+                                $.each(data.field,function (key,val) {
+                                    arr.push(key);
+                                });
+                                roleModule.FunModule = arr.join(",");
+                                websocket.send("ModifyRole",{Role_data:roleModule},function (response) {
+                                    if(response.status=="success"){
+                                        content.getAllRole();
+                                        layer.close(layer.index);
+                                        layer.msg("修改成功!",{time:1500,icon:1})
+                                    }
+                                });
+                                return false;
+                            })
+                        })
+
+                    }
+                });
+
+            })
+        }
+
+        function roleDel() {
+            $('.roleDel').bind("click",function () {
+                var roleName = $(this).parents('.roleItem').find('.roleName').text();
+                var roleModule = allRoles[roleName];
+                layer.confirm('真的删除角色么', function (index) {
+                    console.log(roleModule);
+                    websocket.send("DelRole",{Role_data:roleModule},function(response){
+                        if(response.status == "success"){
+                            layer.msg("删除成功!",{time:1500,icon:1})
+                        } else{
+                            layer.msg(response.data,{time:1500,icon:2})
+                        }
+                    })
+                });
+            })
+        }
+
+        function initEvent() {
+            content.getAllRole();
+            node.find(".addRoleBtn").bind("click",function () {
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+        }
+        initEvent();
+    }
+
+</script>

@@ -1,0 +1,83 @@
+<script type="text/html" template>
+    <link rel="stylesheet" href="{{ layui.setter.base }}style/interior.css" media="all">
+    <link rel="stylesheet" href="{{ layui.setter.base }}style/iconfont.css" media="all">
+</script>
+
+<div class="layui-fluid">
+<!--地图操作-->
+<div class="bodyContent">
+    <div class="topNav">
+        <ul class="toolbar">
+            <li class="edit_tools">作业图层<span class="publine"></span></li>
+            <li class="tool_tools">背景图层<span class="publine"></span></li>
+            <li class="tool_full">全图</li>
+        </ul>
+    </div>
+    <!--台账定位-->
+    <!-- <div class="attIDSearch layui-form">
+        <div class="searchInfo layui-form-item">
+            <div class="layui-input-inline" style="width: 140px !important;">
+                <input type="text" lay-verify="required" placeholder="请输入台账号" class="layui-input searchText">
+            </div>
+        </div>
+        <button class="layui-btn layui-btn-normal searchBtn">台账搜索</button>
+    </div> -->
+    <div class="layerControl hide">
+        <!-- <div id="mbjImage" class="orderByNavSelectNode" data-type="4"><i class="iconfont icon-square"></i> <span>北京影像</span></div> -->
+        <div id="mbj500Image" class="orderByNavSelectNode" data-type="5"><i class="iconfont icon-square"></i> <span>门头沟影像</span></div>
+        <!-- <div id="bjEnvLayer" class="orderByNavSelectNode" data-type="10"><i class="iconfont icon-square"></i> <span>北京区界</span></div> -->
+        <!-- <div id="GHLKXLayer" class="orderByNavSelectNode" data-type="10"><i class="iconfont icon-square"></i> <span>规划轮廓线</span></div> -->
+    </div>
+    <div class="editLayerControl hide">
+        <div id="overlayPolygonLayerXZ" class="orderByNavSelectNode" data-type="9"><i class="iconfont icon-square"></i> <span>销账图层</span></div>
+        <div id="overlayPolygonLayer" class="orderByNavSelectNode" data-type="8"><i class="iconfont icon-square"></i> <span>上账图层</span></div>
+        <div id="fwLayer" class="orderByNavSelectNode" data-type="7"><i class="iconfont icon-square"></i> <span>房屋图层</span></div>
+        <div id="mtgLayer" class="orderByNavSelectNode" data-type="7"><i class="iconfont icon-square"></i> <span>矢量图层</span></div>
+        <!-- <div id="locatelayer" class="orderByNavSelectNode" data-type="6"><i class="iconfont icon-square"></i> <span>定位图层</span></div> -->
+    </div>
+    <!-- <div class="toolBtn">
+        <button>放大</button>
+        <button>缩小</button>
+        <button>漫游</button>
+        <button>创建房屋</button>
+    </div> -->
+
+    <div class="mapContent" id="mapContent"></div>
+
+    <!-- 图例 -->
+    <!-- <div class="legendBox legendSZ">
+        <div class="legendBtn">上账图例</div>
+    </div>
+    <div class="legendInfo legendSZ hide">
+        <div class="title">
+            <span>上账图例</span>
+            <a class="closeSpreadBox" href="javascript:void(0)"></a>
+        </div>
+        <div class="legendListBox"></div>
+    </div>
+
+    <div class="legendBox legendXZ">
+        <div class="legendBtn">销账图例</div>
+    </div>
+    <div class="legendInfo legendXZ">
+        <div class="title">
+            <span>销账图例</span>
+            <a class="closeSpreadBox" href="javascript:void(0)"></a>
+        </div>
+        <div class="legendListBox"></div>
+    </div> -->
+
+</div>
+
+</div>
+
+
+
+    
+<script>
+    
+    layui.use('interior', layui.factory('interior'));
+    // layui.use('interior_gis', layui.factory('interior_gis'));
+</script>
+
+

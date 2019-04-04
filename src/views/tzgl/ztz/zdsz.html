@@ -1,0 +1,173 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="/">主页</a>
+        <a><cite>台账管理</cite></a>
+        <a><cite>总台账</cite></a>
+        <a><cite>待上账</cite></a>
+    </div>
+</div>
+
+<style>
+    .allButtons{
+        margin-left: 110px;
+    }
+    .searchData{
+        margin-top: 40px;
+    }
+</style>
+
+<div class="layui-fluid">
+    <div class="searchMode">
+        <form class="layui-form" action="" lay-filter="example">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">专项台账</label>
+                    <div class="layui-input-inline">
+                        <select  name="illegaltyp" lay-verify="required" lay-filter="">
+                            <option value=""></option>
+                            <option value="占地违建">占地违建</option>
+                            <option value="楼顶违建">楼顶违建</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">台账号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="attID"  autocomplete="off" placeholder="请输入" class="layui-input attrId">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">台账类型</label>
+                    <div class="layui-input-inline">
+                        <select  name="illegaltyp" lay-verify="required" lay-filter="">
+                            <option value=""></option>
+                            <option value="占地违建">占地违建</option>
+                            <option value="楼顶违建">楼顶违建</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">行政区</label>
+                    <div class="layui-input-inline">
+                        <select  name="illegaltyp" lay-verify="required" lay-filter="">
+                            <option value=""></option>
+                            <option value="占地违建">占地违建</option>
+                            <option value="楼顶违建">楼顶违建</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">街道/乡/镇</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="attID"  autocomplete="off" placeholder="请输入" class="layui-input attrId">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">社区/行政村</label>
+                    <div class="layui-input-inline">
+                        <select  name="illegaltyp" lay-verify="required" lay-filter="">
+                            <option value=""></option>
+                            <option value="占地违建">占地违建</option>
+                            <option value="楼顶违建">楼顶违建</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">项目名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="attID"  autocomplete="off" placeholder="请输入" class="layui-input attrId">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">项目地址</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="attID"  autocomplete="off" placeholder="请输入" class="layui-input attrId">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">所在位置类型</label>
+                    <div class="layui-input-inline">
+                        <select  name="illegaltyp" lay-verify="required" lay-filter="">
+                            <option value=""></option>
+                            <option value="占地违建">占地违建</option>
+                            <option value="楼顶违建">楼顶违建</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="allButtons">
+            <button class="layui-btn layui-btn layui-btn-normal">查询</button>
+            <button class="layui-btn layui-btn layui-btn-normal">批量确认上账</button>
+            <button class="layui-btn layui-btn layui-btn-normal">批量退件</button>
+            <button class="layui-btn layui-btn layui-btn-normal">批量外业核查</button>
+        </div>
+    </div>
+    <div class="searchData">
+        <table class="layui-hide" id="xsdszTable"  lay-filter="xsdszTable">
+
+        </table>
+    </div>
+</div>
+
+
+<script>
+    layui.use(['form'], function(){
+        var $ = layui.$;
+        var form = layui.form;
+        form.render();
+
+        var filesFrame = new FilesFrame();
+        function FilesFrame(){
+            var content=this;
+            var active;
+            $.ajax({
+                url:"json/user/menus.json",
+                type:"get",
+                dataType:"json",
+                data:JSON.stringify({}),
+                success:function(_json){
+                    // loadingBox.remove();
+                    var _data = _json.data;
+            
+                    content.setReviewTable(_data);
+            
+                },error:function(e1,e2,e3){
+            
+                }
+            });
+
+            this.setReviewTable = function(_data){
+                layui.use(['table'], function() {
+                    var filesInfoTable = layui.table;
+                    filesInfoTable.render({
+                        elem: '#xsdszTable'
+                        , id: "xsdszTable"
+                        , data: _data
+                        , page: true
+                        , limits:[10]
+                        , cols: [[
+                            {field: '', type:'checkbox',fixed:'left'},
+                            {field: 'authorityName',  title: '街道/乡/镇'},
+                            {field: 'orderNumber', title: '社区/行政村'},
+                            {field: 'menuUrl', title: '项目名称'},
+                            {field: 'orderNumber', align: 'center', title: '建筑面积'},
+                            {field: 'authorityName', title: '项目地址'},
+                            {field: 'authorityName', title: '建设主体'},
+                            {field: 'authorityName', title: '状态'},
+                            {field: 'authorityName', title: '提交时间'},
+                            {field: 'isDep',  align: 'center', title: '操作' ,templet:function(){
+                                return  '<a class="layui-btn layui-btn-xs" lay-event="editDep">下载</a>\n' +
+                                        '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delDep">查看下载次数</a>';
+                            }}
+                        ]]
+                    })
+                })
+            }
+        }
+    })
+</script>
